@@ -46,6 +46,7 @@
     >
     <select class="status-filter">
       <option>Todos</option>
+      <option>Ativos</option>
       <option>Pendente</option>
       <option>Pausado</option>
       <option>Em Progresso</option>
@@ -155,6 +156,12 @@
           id="ticket-title"
           maxlength="64"
         >
+        <small
+          class="char-counter"
+          data-for="ticket-title"
+        >
+          0 / 64
+      </small>
       </div>
       <div class="form-group">
         <label>
@@ -165,6 +172,12 @@
           id="ticket-requester"
           maxlength="64"
         >
+        <small
+          class="char-counter"
+          data-for="ticket-requester"
+        >
+          0 / 64
+        </small>
       </div>
       <div class="form-group">
         <label>
@@ -183,6 +196,12 @@
           id="ticket-description"
           maxlength="4000"
         ></textarea>
+        <small
+          class="char-counter"
+          data-for="ticket-description"
+        >
+          0 / 4000
+        </small>
       </div>
       <div class="form-group">
         <label>

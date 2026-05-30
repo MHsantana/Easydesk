@@ -235,7 +235,29 @@ function renderTickets() {
     const ticketCard =
       document.createElement("div");
     ticketCard.classList.add("ticket-card");
+    const comentarios =
+    ticket.comentarios || [];
+    const comentariosHTML =
+    comentarios
+      .map(
+        comentario => `
+          <div class="comment-item">
+            <strong>
+              ${comentario.autor}
+            </strong>
+            <p>
+              ${comentario.texto}
+            </p>
+            <small>
+             ${comentario.data}
+            </small>
+          </div>
+        `
+      )
+      .join("");
     ticketCard.innerHTML = `
+    <div class="ticket-layout">
+    <div class="ticket-main">
       <div class="ticket-card-header">
         <div>
           <div class="ticket-title-row">
@@ -278,6 +300,38 @@ function renderTickets() {
         <span>
           ${ticket.data}
         </span>
+      </div>
+      </div>
+        <div class="ticket-comments">
+          <div class="comments-list">
+            ${comentariosHTML}
+          </div>
+      <div class="comment-form">
+        <input
+          type="text"
+          class="comment-author"
+           placeholder="Nome"
+           maxlength="32"
+         >
+         <small class="comment-author-counter">
+          0 / 32
+        </small>
+        <textarea
+          class="comment-text"
+          placeholder="Comentário"
+          maxlength="4000"
+        ></textarea>
+        <small class="comment-text-counter">
+          0 / 4000
+        </small>
+          <button
+          class="add-comment-btn"
+          data-ticket-id="${ticket.id}"
+        >
+          Enviar
+          </button>
+        </div>
+        </div>
       </div>
     `;
     ticketsList.appendChild(ticketCard);
@@ -322,6 +376,99 @@ function renderTickets() {
       button.style.display = "none";
     }
   });
+  document
+  .querySelectorAll(".add-comment-btn")
+  .forEach((button) => {
+    button.addEventListener(
+      "click",
+      () => {
+        const ticketId =
+          Number(
+            button.dataset.ticketId
+          );
+        const card =
+          button.closest(
+            ".ticket-comments"
+          );
+        const autor =
+          card.querySelector(
+            ".comment-author"
+          ).value.trim();
+        const texto =
+          card.querySelector(
+            ".comment-text"
+          ).value.trim();
+        if (autor.length > 32) {
+          alert(
+            "Nome limitado a 32 caracteres."
+          );
+        return;
+        }
+        if (texto.length > 4000) {
+          alert(
+            "Comentário limitado a 4000 caracteres."
+          );
+        return;
+        }
+        if (
+          autor === "" ||
+          texto === ""
+        ) {
+          alert(
+            "Preencha nome e comentário."
+          );
+          return;
+        }
+        const ticket =
+          chamados.find(
+            chamado =>
+              chamado.id === ticketId
+          );
+        if (!ticket.comentarios) {
+          ticket.comentarios = [];
+        }
+        ticket.comentarios.push({
+          autor,
+          texto,
+          data:
+            new Date()
+            .toLocaleString("pt-BR")
+        });
+        saveTickets();
+        renderTickets();
+      }
+    );
+  });
+  document
+  .querySelectorAll(".comment-author")
+  .forEach((input) => {
+    const counter =
+      input.nextElementSibling;
+    const update = () => {
+      counter.textContent =
+        `${input.value.length} / 32`;
+    };
+    input.addEventListener(
+      "input",
+      update
+    );
+    update();
+  });
+document
+  .querySelectorAll(".comment-text")
+  .forEach((textarea) => {
+    const counter =
+      textarea.nextElementSibling;
+    const update = () => {
+      counter.textContent =
+        `${textarea.value.length} / 4000`;
+    };
+    textarea.addEventListener(
+      "input",
+      update
+    );
+    update();
+  });
 }
 
 topbarGroupSelect.addEventListener(
@@ -337,6 +484,19 @@ sortTickets.addEventListener(
 renderGroups();
 populateGroupSelects();
 renderTickets();
+
+setupCounter(
+  "#ticket-title",
+  '[data-for="ticket-title"]'
+);
+setupCounter(
+  "#ticket-requester",
+  '[data-for="ticket-requester"]'
+);
+setupCounter(
+  "#ticket-description",
+  '[data-for="ticket-description"]'
+);
 
 // Submit grupo
 
@@ -519,7 +679,8 @@ ticketForm.addEventListener("submit", (event) => {
     descricao: ticketDescription,
     responsavel: ticketOwner,
     criticidade: ticketPriority,
-    status: "Pendente"
+    status: "Pendente",
+    comentarios: []
   };
   chamados.push(novoChamado);
   saveTickets();
@@ -527,6 +688,33 @@ ticketForm.addEventListener("submit", (event) => {
   ticketForm.reset();
   ticketModal.classList.add("hidden");
 });
+
+
+function setupCounter(
+  inputSelector,
+  counterSelector
+) {
+  const input =
+    document.querySelector(
+      inputSelector
+    );
+  const counter =
+    document.querySelector(
+      counterSelector
+    );
+  if (!input || !counter) {
+    return;
+  }
+  const updateCounter = () => {
+    counter.textContent =
+      `${input.value.length} / ${input.maxLength}`;
+  };
+  input.addEventListener(
+    "input",
+    updateCounter
+  );
+  updateCounter();
+}
 
 function saveTickets() {
   localStorage.setItem(
