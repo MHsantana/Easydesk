@@ -255,6 +255,58 @@ function renderTickets() {
         `
       )
       .join("");
+    let actionButton = "";
+    switch (ticket.status) {
+      case "Pendente":
+        actionButton = `
+          <button
+            class="ticket-action-btn"
+            data-id="${ticket.id}"
+            data-action="start"
+          >
+            Avançar chamado
+          </button>
+        `;
+        break;
+      case "Em Progresso":
+        actionButton = `
+          <div class="ticket-actions">
+            <button
+             class="ticket-action-btn"
+              data-id="${ticket.id}"
+              data-action="pause"
+            >
+             Pausar
+            </button>
+            <button
+             class="ticket-action-btn"
+              data-id="${ticket.id}"
+             data-action="finish"
+            >
+              Concluir
+            </button>
+           <button
+              class="ticket-action-btn danger"
+              data-id="${ticket.id}"
+              data-action="cancel"
+            >
+              Cancelar
+            </button>
+          </div>
+        `;
+        break;
+      case "Pausado":
+        actionButton = `
+          <button
+            class="ticket-action-btn"
+           data-id="${ticket.id}"
+           data-action="resume"
+          >
+            Retomar chamado
+          </button>
+        `;
+        break;
+    }
     ticketCard.innerHTML = `
     <div class="ticket-layout">
     <div class="ticket-main">
@@ -275,9 +327,13 @@ function renderTickets() {
           >
             ${ticket.criticidade}
           </div>
-          <div class="ticket-badge">
+          <div
+            class="ticket-badge status-${ticket.status
+              .toLowerCase()
+              .replace(" ", "-")}"
+          >
             ${ticket.status}
-          </div>
+        </div>
         </div>
       </div>
       <p
@@ -301,6 +357,7 @@ function renderTickets() {
           ${ticket.data}
         </span>
       </div>
+      ${actionButton}
       </div>
         <div class="ticket-comments">
           <div class="comments-list">
@@ -468,6 +525,48 @@ document
       update
     );
     update();
+  });
+  document
+  .querySelectorAll(".ticket-action-btn")
+  .forEach((button) => {
+    button.addEventListener(
+      "click",
+      () => {
+        const ticketId =
+          Number(button.dataset.id);
+        const action =
+          button.dataset.action;
+        const ticket =
+          chamados.find(
+            ticket => ticket.id === ticketId
+          );
+        if (!ticket) return;
+        switch (action) {
+          case "start":
+            ticket.status =
+              "Em Progresso";
+            break;
+          case "pause":
+            ticket.status =
+              "Pausado";
+            break;
+          case "resume":
+            ticket.status =
+              "Em Progresso";
+            break;
+          case "finish":
+            ticket.status =
+              "Concluído";
+            break;
+          case "cancel":
+            ticket.status =
+              "Cancelado";
+            break;
+        }
+        saveTickets();
+        refreshUI();
+      }
+    );
   });
 }
 

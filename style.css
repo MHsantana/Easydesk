@@ -512,6 +512,31 @@ textarea {
   color: var(--text-light);
 }
 
+.status-pendente {
+  background: #e9f2ff;
+  color: #0f6cbd;
+}
+
+.status-em-progresso {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.status-pausado {
+  background: #eceff1;
+  color: #546e7a;
+}
+
+.status-concluído {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-cancelado {
+  background: #ffebee;
+  color: #c62828;
+}
+
 @media (max-width: 768px) {
   .topbar {
     flex-direction: column;
