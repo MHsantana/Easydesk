@@ -130,9 +130,12 @@ function renderGroups() {
   const chamadosAbertos =
     chamadosDoGrupo.filter(
       ticket =>
-        ticket.status === "Pendente" ||
-        ticket.status === "Em Progresso"
-  ).length;
+        [
+          "Pendente",
+          "Em Progresso",
+          "Pausado"
+        ].includes(ticket.status)
+    ).length;
     // conteúdo
  groupCard.innerHTML = `
   <div class="group-card-layout">
@@ -199,6 +202,8 @@ function renderTickets() {
   ticketsList.innerHTML = "";
   const selectedGroup =
     topbarGroupSelect.value;
+  const selectedStatus =
+    statusFilter.value;
   let ticketsFiltrados =
     selectedGroup === "all"
       ? [...chamados]
@@ -206,6 +211,31 @@ function renderTickets() {
         ticket =>
         ticket.grupoId == selectedGroup
       );
+  if (selectedStatus !== "Todos") {
+  ticketsFiltrados =
+    ticketsFiltrados.filter(
+      ticket => {
+        switch (selectedStatus) {
+          case "Ativos":
+            return [
+              "Pendente",
+              "Em Progresso",
+              "Pausado"
+            ].includes(ticket.status);
+          case "Finalizados":
+            return [
+              "Concluído",
+              "Cancelado"
+            ].includes(ticket.status);
+          default:
+            return (
+              ticket.status ===
+              selectedStatus
+            );
+        }
+      }
+    );
+}
   switch (sortTickets.value) {
   case "newest":
     ticketsFiltrados.sort(
@@ -576,6 +606,11 @@ topbarGroupSelect.addEventListener(
 );
 
 sortTickets.addEventListener(
+  "change",
+  renderTickets
+);
+
+statusFilter.addEventListener(
   "change",
   renderTickets
 );
