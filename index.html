@@ -1,249 +1,177 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EasyDesk - Mario Santana</title>
-  <meta name="color-scheme" content="light dark">
-  <meta name="description" content="Easydesk.">
-  <link rel="icon" href="assets/img/favicon.jpg">
-  <!-- Fontes -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EasyDesk - Mario Santana</title>
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="Easydesk." />
+    <link rel="icon" href="assets/img/favicon.jpg" />
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap"
+      rel="stylesheet"
+    />
 
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <h1>EasyDesk - Painel de Chamados</h1>
 
-  <main class="app">
+        <div class="topbar-actions">
+          <button class="primary-btn new-ticket-btn">Novo Chamado</button>
+          <button class="secondary-btn">Novo Grupo</button>
+          <select id="group-select">
+            <option value="all">Todos</option>
+          </select>
+        </div>
+      </header>
 
-    <header class="topbar">
-      <h1>EasyDesk - Painel de Chamados</h1>
+      <section class="toolbar">
+        <div class="toolbar-left">
+          <input
+            class="ticket-search"
+            type="text"
+            placeholder="Buscar chamado..."
+          />
+          <select class="status-filter">
+            <option value="Todos">Todos</option>
+            <option value="Ativos">Ativos</option>
+            <option value="Finalizados">Finalizados</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Em Progresso">Em Progresso</option>
+            <option value="Pausado">Pausado</option>
+            <option value="Concluído">Concluído</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
 
-<div class="topbar-actions">
-  <button class="primary-btn new-ticket-btn">
-    Novo Chamado
-  </button>
-  <button class="secondary-btn">
-    Novo Grupo
-  </button>
-  <select id="group-select">
-  <option value="all">
-    Todos
-  </option>
-  </select>
-</div>
-    </header>
+        <div class="toolbar-center">
+          <select id="sort-tickets">
+            <option value="newest">Mais novo</option>
+            <option value="oldest">Mais antigo</option>
+            <option value="priority">Criticidade</option>
+          </select>
+          <button id="toggle-all-tickets">
+            Minimizar todos
+          </button>
+        </div>
 
-<section class="toolbar">
-
-  <div class="toolbar-left">
-    <input
-      class="ticket-search"
-      type="text"
-      placeholder="Buscar chamado..."
-    >
-    <select class="status-filter">
-      <option value="Todos">Todos</option>
-      <option value="Ativos">Ativos</option>
-      <option value="Finalizados">Finalizados</option>
-      <option value="Pendente">Pendente</option>
-      <option value="Em Progresso">Em Progresso</option>
-      <option value="Pausado">Pausado</option>
-      <option value="Concluído">Concluído</option>
-      <option value="Cancelado">Cancelado</option>
-    </select>
-  </div>
-
-  <div class="toolbar-center">
-    <select id="sort-tickets">
-      <option value="newest">Mais novo</option>
-      <option value="oldest">Mais antigo</option>
-      <option value="priority">Criticidade</option>
-    </select>
-  </div>
-
-  <div class="toolbar-right">
-    <div class="view-switcher">
-      <button class="view-btn active">
-        Chamados
-      </button>
-      <button class="view-btn">
-        Grupos
-      </button>
-    </div>
-  </div>
-
-</section>
- <!-- ÁREA DINÂMICA PRINCIPAL -->
-    <section class="content">
-      <!-- VIEW DE CHAMADOS -->
-      <section class="tickets-view">
-        <div class="tickets-list">
-          <!-- cards de chamados aparecerão aqui -->
+        <div class="toolbar-right">
+          <div class="view-switcher">
+            <button class="view-btn active">Chamados</button>
+            <button class="view-btn">Grupos</button>
+          </div>
         </div>
       </section>
+      <!-- ÁREA DINÂMICA PRINCIPAL -->
+      <section class="content">
+        <!-- VIEW DE CHAMADOS -->
+        <section class="tickets-view">
+          <div class="tickets-list">
+            <!-- cards de chamados aparecerão aqui -->
+          </div>
+        </section>
 
-      <!-- VIEW DE GRUPOS -->
-      <section class="groups-view hidden">
-        <section class="groups-list">
-          <!-- cards de grupos aparecerão aqui -->
+        <!-- VIEW DE GRUPOS -->
+        <section class="groups-view hidden">
+          <section class="groups-list">
+            <!-- cards de grupos aparecerão aqui -->
+          </section>
         </section>
       </section>
-    </section>
-  </main>
+    </main>
 
-  <div class="modal hidden" id="group-modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Novo Grupo</h2>
-      <button class="close-modal">
-        X
-      </button>
+    <div class="modal hidden" id="group-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Novo Grupo</h2>
+          <button class="close-modal">X</button>
+        </div>
+        <form id="group-form">
+          <div class="form-group">
+            <label> Nome do Grupo </label>
+            <input
+              type="text"
+              id="group-name"
+              placeholder="Exemplo: Infraestrutura"
+              maxlength="64"
+            />
+          </div>
+          <div class="form-group">
+            <label> Prefixo </label>
+            <input
+              type="text"
+              id="group-prefix"
+              placeholder="Exemplo: INF"
+              maxlength="5"
+            />
+          </div>
+          <button type="submit" class="primary-btn new-ticket-btn">
+            Criar Grupo
+          </button>
+        </form>
+      </div>
     </div>
-    <form id="group-form">
-      <div class="form-group">
-        <label>
-          Nome do Grupo
-        </label>
-        <input
-          type="text"
-          id="group-name"
-          placeholder="Exemplo: Infraestrutura"
-          maxlength="64"
-        >
-      </div>
-      <div class="form-group">
-        <label>
-          Prefixo
-        </label>
-        <input
-          type="text"
-          id="group-prefix"
-          placeholder="Exemplo: INF"
-          maxlength="5"
-        >
-      </div>
-      <button type="submit" class="primary-btn new-ticket-btn">
-        Criar Grupo
-      </button>
-    </form>
-  </div>
-</div>
 
-<div class="modal hidden" id="ticket-modal">
-  <div class="modal-content ticket-modal-content">
-    <div class="modal-header">
-      <h2>Novo Chamado</h2>
-      <button class="close-ticket-modal">
-        X
-      </button>
+    <div class="modal hidden" id="ticket-modal">
+      <div class="modal-content ticket-modal-content">
+        <div class="modal-header">
+          <h2>Novo Chamado</h2>
+          <button class="close-ticket-modal">X</button>
+        </div>
+        <form id="ticket-form">
+          <div class="form-group">
+            <label> Grupo </label>
+            <select id="ticket-group"></select>
+          </div>
+          <div class="form-group">
+            <label> Título </label>
+            <input type="text" id="ticket-title" maxlength="64" />
+            <small class="char-counter" data-for="ticket-title"> 0 / 64 </small>
+          </div>
+          <div class="form-group">
+            <label> Nome </label>
+            <input type="text" id="ticket-requester" maxlength="64" />
+            <small class="char-counter" data-for="ticket-requester">
+              0 / 64
+            </small>
+          </div>
+          <div class="form-group">
+            <label> Data </label>
+            <input type="date" id="ticket-date" />
+          </div>
+          <div class="form-group">
+            <label> Descrição </label>
+            <textarea id="ticket-description" maxlength="4000"></textarea>
+            <small class="char-counter" data-for="ticket-description">
+              0 / 4000
+            </small>
+          </div>
+          <div class="form-group">
+            <label> Responsável </label>
+            <input type="text" id="ticket-owner" maxlength="64" />
+          </div>
+          <div class="form-group">
+            <label> Criticidade </label>
+            <select id="ticket-priority">
+              <option value="">Selecione</option>
+              <option>Baixa</option>
+              <option>Média</option>
+              <option>Alta</option>
+              <option>Crítica</option>
+            </select>
+          </div>
+          <button type="submit" class="primary-btn new-ticket-btn">
+            Criar Chamado
+          </button>
+        </form>
+      </div>
     </div>
-    <form id="ticket-form">
-      <div class="form-group">
-        <label>
-          Grupo
-        </label>
-        <select id="ticket-group">
-        </select>
-      </div>
-      <div class="form-group">
-        <label>
-          Título
-        </label>
-        <input
-          type="text"
-          id="ticket-title"
-          maxlength="64"
-        >
-        <small
-          class="char-counter"
-          data-for="ticket-title"
-        >
-          0 / 64
-      </small>
-      </div>
-      <div class="form-group">
-        <label>
-          Nome
-        </label>
-        <input
-          type="text"
-          id="ticket-requester"
-          maxlength="64"
-        >
-        <small
-          class="char-counter"
-          data-for="ticket-requester"
-        >
-          0 / 64
-        </small>
-      </div>
-      <div class="form-group">
-        <label>
-          Data
-        </label>
-        <input
-          type="date"
-          id="ticket-date"
-        >
-      </div>
-      <div class="form-group">
-        <label>
-          Descrição
-        </label>
-        <textarea
-          id="ticket-description"
-          maxlength="4000"
-        ></textarea>
-        <small
-          class="char-counter"
-          data-for="ticket-description"
-        >
-          0 / 4000
-        </small>
-      </div>
-      <div class="form-group">
-        <label>
-          Responsável
-        </label>
-        <input
-          type="text"
-          id="ticket-owner"
-          maxlength="64"
-        >
-      </div>
-      <div class="form-group">
-        <label>
-          Criticidade
-        </label>
-        <select id="ticket-priority">
-          <option value="">
-            Selecione
-          </option>
-          <option>
-            Baixa
-          </option>
-          <option>
-            Média
-          </option>
-          <option>
-            Alta
-          </option>
-          <option>
-            Crítica
-          </option>
-        </select>
-      </div>
-      <button
-        type="submit"
-        class="primary-btn new-ticket-btn"
-      >
-        Criar Chamado
-      </button>
-    </form>
-  </div>
-</div>
-<script src="script.js"></script>
-</body>
+    <script src="script.js"></script>
+  </body>
+</html>

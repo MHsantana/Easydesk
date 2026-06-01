@@ -28,6 +28,9 @@ const ticketGroupSelect = document.querySelector("#ticket-group");
 
 const topbarGroupSelect = document.querySelector("#group-select");
 
+let ticketsExpandidos = new Set();
+let todosExpandidos = false;
+
 // Troca de view
 
 btnChamados.addEventListener("click", () => {
@@ -213,8 +216,12 @@ function renderTickets() {
       break;
   }
   ticketsFiltrados.forEach((ticket) => {
+    const expandido = ticketsExpandidos.has(ticket.id);
     const ticketCard = document.createElement("div");
     ticketCard.classList.add("ticket-card");
+    if (!expandido) {
+      ticketCard.classList.add("collapsed");
+    }
     const comentarios = ticket.comentarios || [];
     const comentariosHTML = comentarios
       .map(
@@ -287,7 +294,7 @@ function renderTickets() {
     }
     ticketCard.innerHTML = `
     <div class="ticket-layout">
-    <div class="ticket-main">
+    <div class="ticket-main ${expandido ? "expanded" : "collapsed-card"}">
       <div class="ticket-card-header">
         <div>
           <div class="ticket-title-row">
@@ -370,6 +377,21 @@ function renderTickets() {
       </div>
     `;
     ticketsList.appendChild(ticketCard);
+    ticketCard.addEventListener("click", (event) => {
+      if (
+        event.target.closest("button") ||
+        event.target.closest("input") ||
+        event.target.closest("textarea")
+      ) {
+        return;
+      }
+      if (ticketsExpandidos.has(ticket.id)) {
+        ticketsExpandidos.delete(ticket.id);
+      } else {
+        ticketsExpandidos.add(ticket.id);
+      }
+      renderTickets();
+    });
   });
   document.querySelectorAll(".expand-description-btn").forEach((button) => {
     button.addEventListener("click", () => {
@@ -470,6 +492,22 @@ topbarGroupSelect.addEventListener("change", renderTickets);
 sortTickets.addEventListener("change", renderTickets);
 
 statusFilter.addEventListener("change", renderTickets);
+
+document.querySelector("#toggle-all-tickets").addEventListener("click", () => {
+  if (todosExpandidos) {
+    ticketsExpandidos.clear();
+  } else {
+    chamados.forEach((ticket) => ticketsExpandidos.add(ticket.id));
+  }
+
+  todosExpandidos = !todosExpandidos;
+
+  document.querySelector("#toggle-all-tickets").textContent = todosExpandidos
+    ? "Minimizar todos"
+    : "Expandir todos";
+
+  renderTickets();
+});
 
 renderGroups();
 populateGroupSelects();

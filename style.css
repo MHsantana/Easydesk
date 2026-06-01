@@ -537,6 +537,29 @@ textarea {
   color: #c62828;
 }
 
+.ticket-card.collapsed .ticket-details {
+  display: none;
+}
+
+.ticket-card.collapsed {
+  cursor: pointer;
+}
+
+.ticket-card.collapsed .ticket-details {
+  display: none;
+}
+
+.ticket-card.collapsed:hover {
+  transform: translateY(-2px);
+}
+
+.ticket-card.collapsed .ticket-description,
+.ticket-card.collapsed .expand-description-btn,
+.ticket-card.collapsed .ticket-comments,
+.ticket-card.collapsed .ticket-actions {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .topbar {
     flex-direction: column;
