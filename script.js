@@ -1,46 +1,32 @@
 // Views
 
-const btnChamados =
-  document.querySelector(".view-btn:first-child");
+const btnChamados = document.querySelector(".view-btn:first-child");
 
-const btnGrupos =
-  document.querySelector(".view-btn:last-child");
+const btnGrupos = document.querySelector(".view-btn:last-child");
 
-const ticketsView =
-  document.querySelector(".tickets-view");
+const ticketsView = document.querySelector(".tickets-view");
 
-const groupsView =
-  document.querySelector(".groups-view");
+const groupsView = document.querySelector(".groups-view");
 
-const ticketSearch =
-  document.querySelector(".ticket-search");
+const ticketSearch = document.querySelector(".ticket-search");
 
-const statusFilter =
-  document.querySelector(".status-filter");
+const statusFilter = document.querySelector(".status-filter");
 
-const sortTickets =
-  document.querySelector("#sort-tickets");
+const sortTickets = document.querySelector("#sort-tickets");
 
-const ticketForm =
-  document.querySelector("#ticket-form");
+const ticketForm = document.querySelector("#ticket-form");
 
-const ticketsList =
-  document.querySelector(".tickets-list");
+const ticketsList = document.querySelector(".tickets-list");
 
-const newTicketBtn =
-  document.querySelector(".topbar .new-ticket-btn");
+const newTicketBtn = document.querySelector(".topbar .new-ticket-btn");
 
-const ticketModal =
-  document.querySelector("#ticket-modal");
+const ticketModal = document.querySelector("#ticket-modal");
 
-const closeTicketModalBtn =
-  document.querySelector(".close-ticket-modal");
+const closeTicketModalBtn = document.querySelector(".close-ticket-modal");
 
-const ticketGroupSelect =
-  document.querySelector("#ticket-group");
+const ticketGroupSelect = document.querySelector("#ticket-group");
 
-const topbarGroupSelect =
-  document.querySelector("#group-select");
+const topbarGroupSelect = document.querySelector("#group-select");
 
 // Troca de view
 
@@ -64,15 +50,11 @@ btnGrupos.addEventListener("click", () => {
   sortTickets.classList.add("hidden");
 });
 
-
 // modal criar grupo
 
-const newGroupBtn =
-  document.querySelector(".secondary-btn");
-const groupModal =
-  document.querySelector("#group-modal");
-const closeModalBtn =
-  document.querySelector(".close-modal");
+const newGroupBtn = document.querySelector(".secondary-btn");
+const groupModal = document.querySelector("#group-modal");
+const closeModalBtn = document.querySelector(".close-modal");
 
 // abrir modal
 
@@ -88,56 +70,38 @@ closeModalBtn.addEventListener("click", () => {
 
 // Array grupos
 
-const grupos =
-  JSON.parse(
-    localStorage.getItem("groups")
-  ) || [];
+const grupos = JSON.parse(localStorage.getItem("groups")) || [];
 
 // Array chamados
-const chamados =
-  JSON.parse(
-    localStorage.getItem("tickets")
-  ) || [];
+const chamados = JSON.parse(localStorage.getItem("tickets")) || [];
 
 // Formulário
 
-const groupForm =
-  document.querySelector("#group-form");
+const groupForm = document.querySelector("#group-form");
 
 // Container de grupos
 
-const groupsList =
-  document.querySelector(".groups-list");
+const groupsList = document.querySelector(".groups-list");
 
 // Renderização de grupos
 
 function renderGroups() {
-
   // limpa lista antes de renderizar novamente
   groupsList.innerHTML = "";
   // percorre array
   grupos.forEach((grupo) => {
     // cria card
-    const groupCard =
-      document.createElement("div");
+    const groupCard = document.createElement("div");
     groupCard.classList.add("group-card");
-    const chamadosDoGrupo =
-  chamados.filter(
-    ticket => ticket.grupoId == grupo.id
-  );
-  const totalChamados =
-    chamadosDoGrupo.length;
-  const chamadosAbertos =
-    chamadosDoGrupo.filter(
-      ticket =>
-        [
-          "Pendente",
-          "Em Progresso",
-          "Pausado"
-        ].includes(ticket.status)
+    const chamadosDoGrupo = chamados.filter(
+      (ticket) => ticket.grupoId == grupo.id,
+    );
+    const totalChamados = chamadosDoGrupo.length;
+    const chamadosAbertos = chamadosDoGrupo.filter((ticket) =>
+      ["Pendente", "Em Progresso", "Pausado"].includes(ticket.status),
     ).length;
     // conteúdo
- groupCard.innerHTML = `
+    groupCard.innerHTML = `
   <div class="group-card-layout">
     <div class="group-info">
       <h3>${grupo.nome}</h3>
@@ -163,7 +127,7 @@ function renderGroups() {
     </div>
     <div class="group-card-actions">
       <button class="save-group-btn">
-        Salvar
+        Exportar CSV
       </button>
       <button
         class="delete-group-btn"
@@ -177,100 +141,84 @@ function renderGroups() {
     // adiciona no container
     groupsList.appendChild(groupCard);
   });
-document
-  .querySelectorAll(".delete-group-btn")
-  .forEach((button) => {
+  document.querySelectorAll(".delete-group-btn").forEach((button) => {
     button.addEventListener("click", () => {
-      const id =
-        Number(button.dataset.id);
-      const indice =
-        grupos.findIndex(
-          grupo => grupo.id === id
-        );
+      const id = Number(button.dataset.id);
+      const indice = grupos.findIndex((grupo) => grupo.id === id);
       grupos.splice(indice, 1);
       saveGroups();
       refreshUI();
       populateGroupSelects();
     });
   });
-
+  document.querySelectorAll(".save-group-btn").forEach((button, index) => {
+    button.addEventListener("click", () => {
+      exportGroupCSV(grupos[index].id);
+    });
+  });
 }
 
 //render chamado
 
 function renderTickets() {
   ticketsList.innerHTML = "";
-  const selectedGroup =
-    topbarGroupSelect.value;
-  const selectedStatus =
-    statusFilter.value;
+  const selectedGroup = topbarGroupSelect.value;
+  const selectedStatus = statusFilter.value;
   let ticketsFiltrados =
     selectedGroup === "all"
       ? [...chamados]
-      : chamados.filter(
-        ticket =>
-        ticket.grupoId == selectedGroup
+      : chamados.filter((ticket) => ticket.grupoId == selectedGroup);
+  const searchTerm = ticketSearch.value.trim().toLowerCase();
+  if (searchTerm) {
+    ticketsFiltrados = ticketsFiltrados.filter((ticket) => {
+      return (
+        ticket.codigo.toLowerCase().includes(searchTerm) ||
+        ticket.titulo.toLowerCase().includes(searchTerm) ||
+        ticket.solicitante.toLowerCase().includes(searchTerm) ||
+        (ticket.responsavel || "").toLowerCase().includes(searchTerm)
       );
+    });
+  }
   if (selectedStatus !== "Todos") {
-  ticketsFiltrados =
-    ticketsFiltrados.filter(
-      ticket => {
-        switch (selectedStatus) {
-          case "Ativos":
-            return [
-              "Pendente",
-              "Em Progresso",
-              "Pausado"
-            ].includes(ticket.status);
-          case "Finalizados":
-            return [
-              "Concluído",
-              "Cancelado"
-            ].includes(ticket.status);
-          default:
-            return (
-              ticket.status ===
-              selectedStatus
-            );
-        }
+    ticketsFiltrados = ticketsFiltrados.filter((ticket) => {
+      switch (selectedStatus) {
+        case "Ativos":
+          return ["Pendente", "Em Progresso", "Pausado"].includes(
+            ticket.status,
+          );
+        case "Finalizados":
+          return ["Concluído", "Cancelado"].includes(ticket.status);
+        default:
+          return ticket.status === selectedStatus;
       }
-    );
-}
+    });
+  }
   switch (sortTickets.value) {
-  case "newest":
-    ticketsFiltrados.sort(
-      (a, b) => b.id - a.id
-    );
-    break;
-  case "oldest":
-    ticketsFiltrados.sort(
-      (a, b) => a.id - b.id
-    );
-    break;
-  case "priority":
-    const prioridades = {
-      "Crítica": 4,
-      "Alta": 3,
-      "Média": 2,
-      "Baixa": 1
-    };
-    ticketsFiltrados.sort(
-      (a, b) =>
-        prioridades[b.criticidade] -
-        prioridades[a.criticidade]
-    );
-    break;
-}
+    case "newest":
+      ticketsFiltrados.sort((a, b) => b.id - a.id);
+      break;
+    case "oldest":
+      ticketsFiltrados.sort((a, b) => a.id - b.id);
+      break;
+    case "priority":
+      const prioridades = {
+        Crítica: 4,
+        Alta: 3,
+        Média: 2,
+        Baixa: 1,
+      };
+      ticketsFiltrados.sort(
+        (a, b) => prioridades[b.criticidade] - prioridades[a.criticidade],
+      );
+      break;
+  }
   ticketsFiltrados.forEach((ticket) => {
-    const ticketCard =
-      document.createElement("div");
+    const ticketCard = document.createElement("div");
     ticketCard.classList.add("ticket-card");
-    const comentarios =
-    ticket.comentarios || [];
-    const comentariosHTML =
-    comentarios
+    const comentarios = ticket.comentarios || [];
+    const comentariosHTML = comentarios
       .map(
-        comentario => `
+        (comentario) => `
           <div class="comment-item">
             <strong>
               ${comentario.autor}
@@ -282,7 +230,7 @@ function renderTickets() {
              ${comentario.data}
             </small>
           </div>
-        `
+        `,
       )
       .join("");
     let actionButton = "";
@@ -423,214 +371,113 @@ function renderTickets() {
     `;
     ticketsList.appendChild(ticketCard);
   });
-  document
-    .querySelectorAll(
-      ".expand-description-btn"
-    )
-    .forEach((button) => {
-      button.addEventListener(
-        "click",
-        () => {
-          const description =
-            button.previousElementSibling;
-          description.classList.toggle(
-            "collapsed"
-          );
-          button.textContent =
-            description.classList.contains(
-              "collapsed"
-            )
-              ? "Ver mais"
-              : "Ver menos";
-        }
-      );
+  document.querySelectorAll(".expand-description-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const description = button.previousElementSibling;
+      description.classList.toggle("collapsed");
+      button.textContent = description.classList.contains("collapsed")
+        ? "Ver mais"
+        : "Ver menos";
     });
-    document
-  .querySelectorAll(".ticket-card")
-  .forEach((card) => {
-
-    const description =
-      card.querySelector(
-        ".ticket-description"
-      );
-    const button =
-      card.querySelector(
-        ".expand-description-btn"
-      );
-    if (
-      description.scrollHeight <= 90
-    ) {
+  });
+  document.querySelectorAll(".ticket-card").forEach((card) => {
+    const description = card.querySelector(".ticket-description");
+    const button = card.querySelector(".expand-description-btn");
+    if (description.scrollHeight <= 90) {
       button.style.display = "none";
     }
   });
-  document
-  .querySelectorAll(".add-comment-btn")
-  .forEach((button) => {
-    button.addEventListener(
-      "click",
-      () => {
-        const ticketId =
-          Number(
-            button.dataset.ticketId
-          );
-        const card =
-          button.closest(
-            ".ticket-comments"
-          );
-        const autor =
-          card.querySelector(
-            ".comment-author"
-          ).value.trim();
-        const texto =
-          card.querySelector(
-            ".comment-text"
-          ).value.trim();
-        if (autor.length > 32) {
-          alert(
-            "Nome limitado a 32 caracteres."
-          );
+  document.querySelectorAll(".add-comment-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const ticketId = Number(button.dataset.ticketId);
+      const card = button.closest(".ticket-comments");
+      const autor = card.querySelector(".comment-author").value.trim();
+      const texto = card.querySelector(".comment-text").value.trim();
+      if (autor.length > 32) {
+        alert("Nome limitado a 32 caracteres.");
         return;
-        }
-        if (texto.length > 4000) {
-          alert(
-            "Comentário limitado a 4000 caracteres."
-          );
-        return;
-        }
-        if (
-          autor === "" ||
-          texto === ""
-        ) {
-          alert(
-            "Preencha nome e comentário."
-          );
-          return;
-        }
-        const ticket =
-          chamados.find(
-            chamado =>
-              chamado.id === ticketId
-          );
-        if (!ticket.comentarios) {
-          ticket.comentarios = [];
-        }
-        ticket.comentarios.push({
-          autor,
-          texto,
-          data:
-            new Date()
-            .toLocaleString("pt-BR")
-        });
-        saveTickets();
-        renderTickets();
       }
-    );
+      if (texto.length > 4000) {
+        alert("Comentário limitado a 4000 caracteres.");
+        return;
+      }
+      if (autor === "" || texto === "") {
+        alert("Preencha nome e comentário.");
+        return;
+      }
+      const ticket = chamados.find((chamado) => chamado.id === ticketId);
+      if (!ticket.comentarios) {
+        ticket.comentarios = [];
+      }
+      ticket.comentarios.push({
+        autor,
+        texto,
+        data: new Date().toLocaleString("pt-BR"),
+      });
+      saveTickets();
+      renderTickets();
+    });
   });
-  document
-  .querySelectorAll(".comment-author")
-  .forEach((input) => {
-    const counter =
-      input.nextElementSibling;
+  document.querySelectorAll(".comment-author").forEach((input) => {
+    const counter = input.nextElementSibling;
     const update = () => {
-      counter.textContent =
-        `${input.value.length} / 32`;
+      counter.textContent = `${input.value.length} / 32`;
     };
-    input.addEventListener(
-      "input",
-      update
-    );
+    input.addEventListener("input", update);
     update();
   });
-document
-  .querySelectorAll(".comment-text")
-  .forEach((textarea) => {
-    const counter =
-      textarea.nextElementSibling;
+  document.querySelectorAll(".comment-text").forEach((textarea) => {
+    const counter = textarea.nextElementSibling;
     const update = () => {
-      counter.textContent =
-        `${textarea.value.length} / 4000`;
+      counter.textContent = `${textarea.value.length} / 4000`;
     };
-    textarea.addEventListener(
-      "input",
-      update
-    );
+    textarea.addEventListener("input", update);
     update();
   });
-  document
-  .querySelectorAll(".ticket-action-btn")
-  .forEach((button) => {
-    button.addEventListener(
-      "click",
-      () => {
-        const ticketId =
-          Number(button.dataset.id);
-        const action =
-          button.dataset.action;
-        const ticket =
-          chamados.find(
-            ticket => ticket.id === ticketId
-          );
-        if (!ticket) return;
-        switch (action) {
-          case "start":
-            ticket.status =
-              "Em Progresso";
-            break;
-          case "pause":
-            ticket.status =
-              "Pausado";
-            break;
-          case "resume":
-            ticket.status =
-              "Em Progresso";
-            break;
-          case "finish":
-            ticket.status =
-              "Concluído";
-            break;
-          case "cancel":
-            ticket.status =
-              "Cancelado";
-            break;
-        }
-        saveTickets();
-        refreshUI();
+  document.querySelectorAll(".ticket-action-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const ticketId = Number(button.dataset.id);
+      const action = button.dataset.action;
+      const ticket = chamados.find((ticket) => ticket.id === ticketId);
+      if (!ticket) return;
+      switch (action) {
+        case "start":
+          ticket.status = "Em Progresso";
+          break;
+        case "pause":
+          ticket.status = "Pausado";
+          break;
+        case "resume":
+          ticket.status = "Em Progresso";
+          break;
+        case "finish":
+          ticket.status = "Concluído";
+          break;
+        case "cancel":
+          ticket.status = "Cancelado";
+          break;
       }
-    );
+      saveTickets();
+      refreshUI();
+    });
   });
 }
 
-topbarGroupSelect.addEventListener(
-  "change",
-  renderTickets
-);
+ticketSearch.addEventListener("input", renderTickets);
 
-sortTickets.addEventListener(
-  "change",
-  renderTickets
-);
+topbarGroupSelect.addEventListener("change", renderTickets);
 
-statusFilter.addEventListener(
-  "change",
-  renderTickets
-);
+sortTickets.addEventListener("change", renderTickets);
+
+statusFilter.addEventListener("change", renderTickets);
 
 renderGroups();
 populateGroupSelects();
 renderTickets();
 
-setupCounter(
-  "#ticket-title",
-  '[data-for="ticket-title"]'
-);
-setupCounter(
-  "#ticket-requester",
-  '[data-for="ticket-requester"]'
-);
-setupCounter(
-  "#ticket-description",
-  '[data-for="ticket-description"]'
-);
+setupCounter("#ticket-title", '[data-for="ticket-title"]');
+setupCounter("#ticket-requester", '[data-for="ticket-requester"]');
+setupCounter("#ticket-description", '[data-for="ticket-description"]');
 
 // Submit grupo
 
@@ -638,55 +485,40 @@ groupForm.addEventListener("submit", (event) => {
   // impede reload da página
   event.preventDefault();
   // captura valores
-  const groupName =
-    document.querySelector("#group-name").value;
-  const groupPrefix =
-    document.querySelector("#group-prefix").value;
+  const groupName = document.querySelector("#group-name").value;
+  const groupPrefix = document.querySelector("#group-prefix").value;
   const prefixRegex = /^[A-Z0-9]+$/;
 
-  if (
-    !prefixRegex.test(
-      groupPrefix.toUpperCase()
-    )
-  ) {
-
-    alert(
-      "O prefixo só pode conter letras e números."
-    );
+  if (!prefixRegex.test(groupPrefix.toUpperCase())) {
+    alert("O prefixo só pode conter letras e números.");
 
     return;
-
   }
   // validação
-  if (
-    groupName === "" ||
-    groupPrefix === ""
-  ) {
+  if (groupName === "" || groupPrefix === "") {
     alert("Preencha todos os campos");
     return;
   }
-// validação de duplicados
-const normalizedName =
-  groupName.trim().toLowerCase();
+  // validação de duplicados
+  const normalizedName = groupName.trim().toLowerCase();
 
-const normalizedPrefix =
-  groupPrefix.trim().toUpperCase();
+  const normalizedPrefix = groupPrefix.trim().toUpperCase();
 
-const groupExists = grupos.some((group) => {
-  return (
-    group.nome.toLowerCase() === normalizedName ||
-    group.prefixo === normalizedPrefix
-  );
-});
-if (groupExists) {
-  alert("Já existe um grupo com este nome ou prefixo.");
-  return;
-}
+  const groupExists = grupos.some((group) => {
+    return (
+      group.nome.toLowerCase() === normalizedName ||
+      group.prefixo === normalizedPrefix
+    );
+  });
+  if (groupExists) {
+    alert("Já existe um grupo com este nome ou prefixo.");
+    return;
+  }
   // cria objeto
   const novoGrupo = {
     id: Date.now(),
     nome: groupName,
-    prefixo: groupPrefix.toUpperCase()
+    prefixo: groupPrefix.toUpperCase(),
   };
   // adiciona no array
   grupos.push(novoGrupo);
@@ -700,20 +532,57 @@ if (groupExists) {
 });
 
 function saveGroups() {
-  localStorage.setItem(
-    "groups",
-    JSON.stringify(grupos)
-  );
+  localStorage.setItem("groups", JSON.stringify(grupos));
 }
 
+function exportGroupCSV(grupoId) {
+  const grupo = grupos.find((grupo) => grupo.id == grupoId);
+  const ticketsGrupo = chamados.filter((ticket) => ticket.grupoId == grupoId);
+  if (ticketsGrupo.length === 0) {
+    alert("Este grupo não possui chamados.");
+    return;
+  }
+  const linhas = [
+    [
+      "Codigo",
+      "Titulo",
+      "Solicitante",
+      "Responsavel",
+      "Criticidade",
+      "Status",
+      "Data",
+      "Descricao",
+    ],
+  ];
+  ticketsGrupo.forEach((ticket) => {
+    linhas.push([
+      ticket.codigo,
+      ticket.titulo,
+      ticket.solicitante,
+      ticket.responsavel || "",
+      ticket.criticidade,
+      ticket.status,
+      ticket.data,
+      ticket.descricao.replaceAll("\n", " "),
+    ]);
+  });
+  const csv = linhas
+    .map((linha) => linha.map((valor) => `"${String(valor)}"`).join(";"))
+    .join("\n");
+  const blob = new Blob([csv], {
+    type: "text/csv;charset=utf-8;",
+  });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${grupo.prefixo}-chamados.csv`;
+  link.click();
+}
 
 //Modal chamados
 
 newTicketBtn.addEventListener("click", () => {
   if (grupos.length === 0) {
-    alert(
-      "Crie um grupo antes de criar chamados."
-    );
+    alert("Crie um grupo antes de criar chamados.");
     return;
   }
   populateGroupSelects();
@@ -733,48 +602,29 @@ function populateGroupSelects() {
     </option>
   `;
   grupos.forEach((grupo) => {
-    const option =
-      document.createElement("option");
+    const option = document.createElement("option");
     option.value = grupo.id;
-    option.textContent =
-      `${grupo.prefixo} - ${grupo.nome}`;
-    ticketGroupSelect.appendChild(
-      option.cloneNode(true)
-    );
-    topbarGroupSelect.appendChild(
-      option
-    );
+    option.textContent = `${grupo.prefixo} - ${grupo.nome}`;
+    ticketGroupSelect.appendChild(option.cloneNode(true));
+    topbarGroupSelect.appendChild(option);
   });
-    const optionExists =
-    [...topbarGroupSelect.options]
-      .some(
-        option =>
-          option.value === selectedValue
-      );
-  topbarGroupSelect.value =
-    optionExists
-      ? selectedValue
-      : "all";
+  const optionExists = [...topbarGroupSelect.options].some(
+    (option) => option.value === selectedValue,
+  );
+  topbarGroupSelect.value = optionExists ? selectedValue : "all";
 }
 
 //submit chamado
 
 ticketForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  const ticketGroup =
-    document.querySelector("#ticket-group").value;
-  const ticketDate =
-    document.querySelector("#ticket-date").value;
-  const ticketDescription =
-    document.querySelector("#ticket-description").value;
-  const ticketTitle =
-    document.querySelector("#ticket-title").value;
-  const ticketRequester =
-    document.querySelector("#ticket-requester").value;
-  const ticketPriority =
-    document.querySelector("#ticket-priority").value;
-  const ticketOwner =
-    document.querySelector("#ticket-owner").value;
+  const ticketGroup = document.querySelector("#ticket-group").value;
+  const ticketDate = document.querySelector("#ticket-date").value;
+  const ticketDescription = document.querySelector("#ticket-description").value;
+  const ticketTitle = document.querySelector("#ticket-title").value;
+  const ticketRequester = document.querySelector("#ticket-requester").value;
+  const ticketPriority = document.querySelector("#ticket-priority").value;
+  const ticketOwner = document.querySelector("#ticket-owner").value;
   // validação
   if (
     ticketTitle === "" ||
@@ -787,20 +637,14 @@ ticketForm.addEventListener("submit", (event) => {
     return;
   }
   // encontra grupo
-  const grupoSelecionado =
-    grupos.find(
-      (grupo) =>
-        grupo.id == ticketGroup
-    );
+  const grupoSelecionado = grupos.find((grupo) => grupo.id == ticketGroup);
   // tickets do grupo
-  const ticketsDoGrupo =
-    chamados.filter(
-      (ticket) =>
-        ticket.grupoId == ticketGroup
-    );
+  const ticketsDoGrupo = chamados.filter(
+    (ticket) => ticket.grupoId == ticketGroup,
+  );
   // gera código
   const ticketCode = `${grupoSelecionado.prefixo}-${String(
-    ticketsDoGrupo.length + 1
+    ticketsDoGrupo.length + 1,
   ).padStart(3, "0")}`;
   // objeto
   const novoChamado = {
@@ -814,7 +658,7 @@ ticketForm.addEventListener("submit", (event) => {
     responsavel: ticketOwner,
     criticidade: ticketPriority,
     status: "Pendente",
-    comentarios: []
+    comentarios: [],
   };
   chamados.push(novoChamado);
   saveTickets();
@@ -823,38 +667,21 @@ ticketForm.addEventListener("submit", (event) => {
   ticketModal.classList.add("hidden");
 });
 
-
-function setupCounter(
-  inputSelector,
-  counterSelector
-) {
-  const input =
-    document.querySelector(
-      inputSelector
-    );
-  const counter =
-    document.querySelector(
-      counterSelector
-    );
+function setupCounter(inputSelector, counterSelector) {
+  const input = document.querySelector(inputSelector);
+  const counter = document.querySelector(counterSelector);
   if (!input || !counter) {
     return;
   }
   const updateCounter = () => {
-    counter.textContent =
-      `${input.value.length} / ${input.maxLength}`;
+    counter.textContent = `${input.value.length} / ${input.maxLength}`;
   };
-  input.addEventListener(
-    "input",
-    updateCounter
-  );
+  input.addEventListener("input", updateCounter);
   updateCounter();
 }
 
 function saveTickets() {
-  localStorage.setItem(
-    "tickets",
-    JSON.stringify(chamados)
-  );
+  localStorage.setItem("tickets", JSON.stringify(chamados));
 }
 
 function refreshUI() {
