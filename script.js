@@ -28,6 +28,8 @@ const ticketGroupSelect = document.querySelector("#ticket-group");
 
 const topbarGroupSelect = document.querySelector("#group-select");
 
+const toggleAllTickets = document.querySelector("#toggle-all-tickets");
+
 let ticketsExpandidos = new Set();
 let todosExpandidos = false;
 
@@ -41,6 +43,7 @@ btnChamados.addEventListener("click", () => {
   ticketSearch.classList.remove("hidden");
   statusFilter.classList.remove("hidden");
   sortTickets.classList.remove("hidden");
+  toggleAllTickets.classList.remove("hidden");
 });
 
 btnGrupos.addEventListener("click", () => {
@@ -51,6 +54,7 @@ btnGrupos.addEventListener("click", () => {
   ticketSearch.classList.add("hidden");
   statusFilter.classList.add("hidden");
   sortTickets.classList.add("hidden");
+  toggleAllTickets.classList.add("hidden");
 });
 
 // modal criar grupo
